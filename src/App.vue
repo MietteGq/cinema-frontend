@@ -1,12 +1,25 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
+    <el-container v-if="$route.meta.keepAlive">
+      <el-header>
+        <keep-alive>
+          <header-nav></header-nav>
+        </keep-alive>
+      </el-header>
+    </el-container>
     <router-view/>
   </div>
 </template>
+
+<script>
+import Header from '@/components/Header.vue'
+
+export default {
+  components: {
+    'header-nav': Header
+  }
+}
+</script>
 
 <style lang="less">
 #app {
