@@ -6,7 +6,14 @@
       fit="fill"
       class="image"></el-image>
     <div class="bottom">
-      <router-link :to="'/user/movieDetail'">
+      <router-link
+        :to="{
+          path: '/user/moviedetail',
+          query: {
+            movieId: movie.id
+          }
+        }"
+        >
         <el-button type="text" class="button">购票</el-button>
       </router-link>
     </div>

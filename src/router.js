@@ -16,6 +16,14 @@ export default new Router({
       }
     },
     {
+      path: '/movieList',
+      name: 'movieList',
+      component: () => import('@/views/home/movieList'),
+      meta: {
+        keepAlive: true
+      }
+    },
+    {
       path: '/login',
       name: 'login',
       component: () => import('@/views/login'),
@@ -34,19 +42,45 @@ export default new Router({
     {
       path: '/user/seat',
       name: 'seat',
-      component: () => import('@/views/user/seat')
-    },
-    {
-      path: '/user/payment',
-      name: 'payment',
-      component: () => import('@/views/user/payment'),
+      component: () => import('@/views/user/seat'),
+      redirect: '/user/seat/choice',
       children: [
         {
-          path: 'success',
+          path: '/user/seat/choice',
+          name: 'choice',
+          component: () => import('@/views/user/seat/choice'),
+          meta: {
+            keepAlive: true
+          }
+        },
+        {
+          path: '/user/seat/payment',
+          name: 'payment',
+          component: () => import('@/views/user/payment'),
+          meta: {
+            keepAlive: true
+          }
+        },
+        {
+          path: '/user/seat/success',
           name: 'success',
-          component: () => import('@/views/user/payment/success')
+          component: () => import('@/views/user/payment/success'),
+          meta: {
+            keepAlive: true
+          }
         }
-      ]
+      ],
+      meta: {
+        keepAlive: true
+      }
+    },
+    {
+      path: '/info/ticket',
+      name: 'ticket',
+      component: () => import('@/views/user/info/ticket'),
+      meta: {
+        keepAlive: true
+      }
     }
   ]
 })
