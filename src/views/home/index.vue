@@ -2,9 +2,9 @@
   <el-container>
     <el-header :height="'100%'">
       <el-carousel :height="'500px'">
-        <el-carousel-item v-for="item in imagebox" :key="item.id">
+        <el-carousel-item v-for="item in imagebox" :key="item.id" class="imgBox">
           <el-image
-            style="height: 100%"
+            style="height: 100%; width: 70%"
             :src="item.idView"
             :fit="'fill'"
             >
@@ -41,9 +41,9 @@ export default {
       activeName: 'first',
       imagebox: [
         { id: 0, idView: require('@/assets/images/p1.jpg') },
-        { id: 1, idView: require('@/assets/images/p1.jpg') },
-        { id: 2, idView: require('@/assets/images/p1.jpg') },
-        { id: 3, idView: require('@/assets/images/p1.jpg') }
+        { id: 1, idView: require('@/assets/images/home1.jpg') },
+        { id: 2, idView: require('@/assets/images/home2.jpg') },
+        { id: 3, idView: require('@/assets/images/home3.jpg') }
       ],
       movies: [
         {
@@ -72,5 +72,8 @@ export default {
 <style scoped>
 .el-main {
   margin: 0 12%;
+}
+.imgBox {
+  background-color: whitesmoke;
 }
 </style>

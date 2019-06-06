@@ -81,6 +81,14 @@ export default new Router({
       meta: {
         keepAlive: true
       }
+    },
+    {
+      path: '/info/card',
+      name: 'card',
+      component: () => import('@/views/user/info/card'),
+      meta: {
+        keepAlive: true
+      }
     }
   ]
 })

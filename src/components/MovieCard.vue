@@ -14,7 +14,7 @@
           }
         }"
         >
-        <el-button type="text" class="button">购票</el-button>
+        <el-button type="text" class="button" @click.native.prevent="handleClick">购票</el-button>
       </router-link>
     </div>
   </el-card>
@@ -26,6 +26,20 @@ export default {
     movie: {
       type: Object,
       default: null
+    }
+  },
+  methods: {
+    handleClick: function () {
+      if (!this.$store.state.userId) {
+        this.$router.push('/login')
+      } else {
+        this.$router.push({
+          path: '/user/movieDetail',
+          query: {
+            movieId: this.movie.id
+          }
+        })
+      }
     }
   }
 }

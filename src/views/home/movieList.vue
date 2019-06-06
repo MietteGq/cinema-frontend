@@ -4,8 +4,8 @@
       <h1 style="text-align=left">正在热映</h1>
     </el-header>
     <el-main>
-      <el-row type="flex" justify="space-between">
-        <el-col v-for="(movie, i) in movies" :key="i" :span="4">
+      <el-row v-for="(rowMovies, i) in sortedMovies" :key="i" class="line">
+        <el-col v-for="(movie, j) in rowMovies" :key="j" :span="4" :offset="2">
           <movie-card :movie="movie"></movie-card>
         </el-col>
       </el-row>
@@ -15,33 +15,50 @@
 
 <script>
 import MovieCard from '@/components/MovieCard'
+import { allMovieOn } from '@/api/movie'
+
 export default {
   components: {
     'movie-card': MovieCard
   },
+  computed: {
+    sortedMovies: function () {
+      const column = 4
+      var tmpMovies = []
+      for (let i = 0; i < this.movies.length; i++) {
+        const row = parseInt(i / column)
+        if (i % column === 0) {
+          tmpMovies.push([])
+        }
+        tmpMovies[row].push(this.movies[i])
+      }
+      return tmpMovies
+    }
+  },
   data () {
     return {
-      movies: [
-        {
-          posterUrl: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1559564720637&di=76e6c7a1bb8d8d999af4b849c8770713&imgtype=0&src=http%3A%2F%2Fcdnq.duitang.com%2Fuploads%2Fitem%2F201410%2F05%2F20141005110132_WCaNm.thumb.700_0.jpeg'
-        },
-        {
-          posterUrl: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1559564720637&di=76e6c7a1bb8d8d999af4b849c8770713&imgtype=0&src=http%3A%2F%2Fcdnq.duitang.com%2Fuploads%2Fitem%2F201410%2F05%2F20141005110132_WCaNm.thumb.700_0.jpeg'
-        },
-        {
-          posterUrl: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1559564720637&di=76e6c7a1bb8d8d999af4b849c8770713&imgtype=0&src=http%3A%2F%2Fcdnq.duitang.com%2Fuploads%2Fitem%2F201410%2F05%2F20141005110132_WCaNm.thumb.700_0.jpeg'
-        },
-        {
-          posterUrl: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1559564720637&di=76e6c7a1bb8d8d999af4b849c8770713&imgtype=0&src=http%3A%2F%2Fcdnq.duitang.com%2Fuploads%2Fitem%2F201410%2F05%2F20141005110132_WCaNm.thumb.700_0.jpeg'
-        }
-      ]
+      movies: []
+    }
+  },
+  created () {
+    this.getAllMovieOn()
+  },
+  methods: {
+    getAllMovieOn: function () {
+      allMovieOn().then(response => {
+        const { content: movies } = response
+        this.movies = movies
+      })
     }
   }
 }
 </script>
 
-<style>
+<style scoped>
 .el-main{
   margin: 0 12%;
+}
+.line{
+  margin-top: 20px;
 }
 </style>

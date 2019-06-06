@@ -20,7 +20,9 @@
                 <br>
                 <span>导演：{{ movie.director }}</span>
                 <br><br>
-                <span>主演：{{ movie.actors }}</span>
+                <span>编剧：{{ movie.screenWriter }}</span>
+                <br><br>
+                <span>主演：{{ movie.starring }}</span>
                 <br><br>
                 <span>类型：{{ movie.type }}</span>
                 <br><br>
@@ -47,13 +49,17 @@ export default {
       required: true
     }
   },
-  data () {
-    return {
-      backgroundDiv: {
-        backgroundImage: 'url(' + require('@/assets/images/p1.jpg') + ')',
+  computed: {
+    backgroundDiv: function () {
+      return {
+        backgroundImage: `url(${this.movie.posterUrl})`,
         backgroundRepeat: 'no-repeat',
         backgroundSize: '100% 100%'
       }
+    }
+  },
+  data () {
+    return {
     }
   }
 }

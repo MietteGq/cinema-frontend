@@ -1,6 +1,7 @@
 <template>
-  <el-container class="page">
-    <el-main style="padding: 10%">
+  <el-container class="page" v-if="seatLoading && movieLoading">
+    <el-main style="padding: 2% 0 0 0">
+      <h3 style="text-align: left; padding-left: 2%">{{ schedule.hallName }}</h3>
       <seat-card :seats="seats"></seat-card>
     </el-main>
     <el-aside :width="'40%'" class="right">
@@ -9,22 +10,22 @@
           <el-aside :width="'30%'" class="inner-left">
              <el-image
                 style="height: 100%; width: 100%"
-                :src="schedule.posterUrl"
+                :src="movie.posterUrl"
                 fit="fill"
                 class="posterimage"></el-image>
           </el-aside>
           <el-main class="inner-right">
-            <h2 style="text-color: grey;margin:0"> {{schedule.movieName}}</h2><br><br>
-            <span style="font-size:15px">语言：{{schedule.language}}</span><br>
-            <span style="font-size:15px">类型：{{schedule.type}}</span><br>
-            <span style="font-size:15px">片长：{{schedule.length}}</span><br>
-            <span style="font-size:15px">票价：￥{{schedule.price}}</span><br>
+            <h2 style="text-color: grey;margin:0"> {{movie.name}}</h2><br><br>
+            <span style="font-size:15px">语言：{{movie.language}}</span><br>
+            <span style="font-size:15px">类型：{{movie.type}}</span><br>
+            <span style="font-size:15px">片长：{{movie.length}}</span><br>
+            <span style="font-size:15px">票价：￥{{schedule.fare}}</span><br>
           </el-main>
         </el-container>
         <el-main class="middle">
           <br>
-          <span>影厅：{{ schedule.hall }}</span><br><br>
-          <span>影厅：{{ schedule.time }}</span><br><br>
+          <span>影厅：{{ schedule.hallName }}</span><br><br>
+          <span>时间：{{ formatStartTime }}</span><br><br>
           <el-row>
             <div>
               <el-button type="text">座位：</el-button>
@@ -44,11 +45,9 @@
         </el-main>
         <el-footer>
           <div style="text-align:left">
-            <router-link :to="'/user/seat/payment'">
-              <el-button>
-                确认
-              </el-button>
-            </router-link>
+            <el-button @click.native.prevent="handleClick()">
+              确认
+            </el-button>
           </div>
         </el-footer>
       </el-container>
@@ -58,6 +57,10 @@
 
 <script>
 import SeatCard from '@/components/SeatCard'
+import { Message } from 'element-ui'
+import { movieDetail } from '@/api/movie'
+import { seatStatus } from '@/api/ticket'
+import { formatDateTime, formatHourSecondTime } from '@/utils/format'
 
 export default {
   name: 'choice',
@@ -66,38 +69,28 @@ export default {
   },
   data () {
     return {
-      schedule: {
-        movieName: '黄金时代',
-        language: '中文',
-        type: '文艺/爱情',
-        hall: 'max巨幕厅',
-        price: '30',
-        seat: '二排一座',
-        time: '2019.5.18',
-        length: '2小时',
-        posterUrl: 'http://hbimg.b0.upaiyun.com/07b3b8977763bedc8b6b2d3bcdd36defdcb00c1da4e7-WhZGy4_fw658',
-        status: '已完成',
-        startTime: '20:00:00',
-        endTime: '22:00:00'
-      },
-      seats: [
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 1, 0]
-      ]
+      date: null,
+      time: null,
+      schedule: null,
+      movie: null,
+      movieLoading: false,
+      seatLoading: false,
+      userId: null,
+      seats: null
     }
   },
   computed: {
+    formatStartTime: function () {
+      return `${formatDateTime(this.schedule.startTime)} ${formatHourSecondTime(this.schedule.startTime)}`
+    },
     renderSeats: function () {
-      debugger
       return this.seats
     },
-    selectedSeats: function() {
+    selectedSeats: function () {
       var selSeats = []
-      for(let i = 0; i < this.seats.length; ++i) {
-        for(let j = 0; j < this.seats[i].length; ++j ) {
-          if (this.seats[i][j] != 2) {
+      for (let i = 0; i < this.seats.length; ++i) {
+        for (let j = 0; j < this.seats[i].length; ++j) {
+          if (this.seats[i][j] !== 2) {
             continue
           }
           selSeats.push({
@@ -108,11 +101,11 @@ export default {
       }
       return selSeats
     },
-    formatSeats: function() {
+    formatSeats: function () {
       var selSeats = []
-      for(let i = 0; i < this.seats.length; ++i) {
-        for(let j = 0; j < this.seats[i].length; ++j ) {
-          if (this.seats[i][j] != 2) {
+      for (let i = 0; i < this.seats.length; ++i) {
+        for (let j = 0; j < this.seats[i].length; ++j) {
+          if (this.seats[i][j] !== 2) {
             continue
           }
           selSeats.push({
@@ -133,8 +126,15 @@ export default {
       return arrTmp
     }
   },
+  created () {
+    this.scheduleId = this.$route.query.scheduleId
+    this.movieId = this.$route.query.movieId
+    this.userId = this.$store.state.userId
+    this.getMovieDetail()
+    this.getSeatStatus()
+  },
   methods: {
-    handleChooseSeat: function(i, j) {
+    handleChooseSeat: function (i, j) {
       switch (this.seats[i][j]) {
         case 0:
           this.$set(this.seats[i], j, 2)
@@ -145,6 +145,40 @@ export default {
           this.$set(this.seats[i], j, 0)
           break
       }
+    },
+    getMovieDetail: function () {
+      movieDetail(this.movieId, this.userId).then(response => {
+        const { content: movie } = response
+        this.movie = movie
+        this.movieLoading = true
+      }).catch(err => console.log(err))
+    },
+    getSeatStatus: function () {
+      seatStatus(this.scheduleId).then(response => {
+        const seats = response.content.seats
+        const scheduleItem = response.content.scheduleItem
+        this.schedule = scheduleItem
+        this.seats = seats
+        this.seatLoading = true
+      }).catch(err => console.log(err))
+    },
+    handleClick: function () {
+      if (this.selectedSeats.length < 1) {
+        Message({
+          message: '请至少选择一个座位',
+          type: 'error',
+          duration: 5000
+        })
+        return
+      }
+      this.$router.push({
+        path: '/user/seat/payment',
+        query: {
+          scheduleId: this.scheduleId,
+          movieId: this.movieId,
+          seats: this.selectedSeats
+        }
+      })
     }
   }
 }

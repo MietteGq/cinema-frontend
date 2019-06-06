@@ -35,7 +35,6 @@ export default {
   },
   computed: {
     renderSeats: function () {
-      debugger
       return this.seats
     }
   },
