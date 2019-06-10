@@ -1,10 +1,14 @@
 import axios from 'axios'
 import { Message } from 'element-ui'
+import qs from 'qs'
 
 const service = axios.create({
   baseURL: '/api', // url = base url + request url
   withCredentials: true, // send cookies when cross-domain requests
-  timeout: 5000 // request timeout
+  timeout: 5000, // request timeout,
+  paramsSerializer: function (params) {
+    return qs.stringify(params, { arrayFormat: 'repeat' })
+  }
 })
 
 service.interceptors.request.use(

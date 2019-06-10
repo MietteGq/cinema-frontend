@@ -16,3 +16,9 @@ export function lockSeat (ticketForm) {
     data: ticketForm
   })
 }
+export function getUserTickets (userId) {
+  return request({
+    url: `/ticket/get/${userId}`,
+    method: 'get'
+  })
+}

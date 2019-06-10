@@ -1,7 +1,8 @@
 <template>
-  <el-container v-if="movieLoading && scheduleLoading && ticketsLoading">
+  <el-container v-if="movieLoading && scheduleLoading && ticketsLoading ">
     <el-header>
-      {{movie.name}}
+      <span>{{ movie.name }}</span>
+      <span>{{ waitTime }}</span>
     </el-header>
     <el-main>
        <el-table
@@ -64,13 +65,13 @@
       <div style="text-align: right;margin-top:10px;margin-right:20px">实付款{{ payMoney }}</div>
     </el-main>
     <el-footer>
-      <div style="text-align:left">
-        <div style="margin-bottom:10px">优惠券{{watchValue}}</div>
+      <div style="text-align:left" v-if="couponsLoading">
+        <div style="margin-bottom:10px">优惠券</div>
         <el-select v-model="value" placeholder="请选择">
           <el-option
             v-for="item in options"
-            :key="item.discount"
-            :value="item.discount"
+            :key="item.index"
+            :value="item"
             :label="item.label">
           </el-option>
         </el-select>
@@ -94,17 +95,22 @@
               <el-form-item label="密码">
                 <el-input v-model="payForm.password"></el-input>
               </el-form-item>
+              <span>
+              <el-button @click="dialogVisible = false">取 消</el-button>
+              <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+             </span>
             </el-form>
           </el-tab-pane>
-          <el-tab-pane label="会员卡">
-            <span>余额：{{ memberCard.remainer}}</span><br><br>
-            <span>应付款：{{payMoney}}</span>
-          </el-tab-pane>
-        </el-tabs>
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
-        </span>
+          <el-tab-pane label="会员卡" v-if="VIPCardLoading">
+            <span>会员卡号：{{ VIPCard.id }}</span><br><br>
+            <span>余额：{{ VIPCard.balance }}</span><br><br>
+            <span>应付款：{{payMoney}}</span><br><br>
+            <span>
+              <el-button @click="dialogVisible = false">取 消</el-button>
+              <el-button type="primary" @click="buyTicketsByVIPCard()">确 定</el-button>
+             </span>
+            </el-tab-pane>
+          </el-tabs>
         </el-dialog>
       </div>
     </el-footer>
@@ -115,6 +121,8 @@ import { movieDetail } from '@/api/movie'
 import { idSchedule } from '@/api/schedule'
 import { lockSeat } from '@/api/ticket'
 import { formatDateTime, formatHourSecondTime } from '@/utils/format'
+import { getCoupons } from '@/api/coupon'
+import { getVIPCard, buyByVIPCard } from '@/api/VIPCard'
 
 export default {
   data () {
@@ -129,24 +137,13 @@ export default {
       movieLoading: false,
       scheduleLoading: false,
       ticketsLoading: false,
-      coupons: [
-        {
-          name: '端午节特惠',
-          targetAmount: '500',
-          discountAmount: '20'
-        },
-        {
-          name: '端午节特惠',
-          targetAmount: '150',
-          discountAmount: '40'
-        },
-        {
-          name: '端午节特惠',
-          targetAmount: '50',
-          discountAmount: '20'
-        }
-      ],
-      value: '',
+      couponsLoading: false,
+      VIPCardLoading: false,
+      timeout: 15 * 60,
+      timer: null,
+      coupons: null,
+      value: null,
+      VIPCard: null,
       payForm: {
         number: 1,
         password: 123
@@ -177,23 +174,30 @@ export default {
         schedule: this.schedule
       }]
     },
-    watchValue: function () {
-      console.log(this.value)
-      return this.value
-    },
     options: function () {
+      var tmpIndex = 0
       return this.coupons.filter(each => (parseInt(each.targetAmount)) < parseInt(this.total)).map(coupon => {
         return {
+          index: tmpIndex++,
+          id: coupon.id,
           discount: coupon.discountAmount,
           label: `${coupon.name}：满${coupon.targetAmount}减${coupon.discountAmount}`
         }
       })
     },
+    ticketId: function () {
+      return this.tickets.map(ticket => {
+        return ticket.id
+      })
+    },
     payMoney: function () {
-      if (this.value === '') {
+      if (this.value === null) {
         return this.total
       }
-      return parseInt(this.total) - parseInt(this.value)
+      return parseInt(this.total) - parseInt(this.value.discount)
+    },
+    waitTime: function () {
+      return `${parseInt(this.timeout / 60)}分${this.timeout % 60 < 10 ? 0 : ''}${this.timeout % 60}秒`
     }
   },
   created () {
@@ -204,7 +208,9 @@ export default {
     this.getMovieDetail()
     this.getScheduleById()
     this.getTickets()
-    debugger
+    this.getCouponsById()
+    this.countdown()
+    this.getVIPCardById()
   },
   methods: {
     handleClose (done) {
@@ -238,6 +244,34 @@ export default {
         this.tickets = tickets
         this.ticketsLoading = true
       }).catch(err => console.log(err))
+    },
+    getCouponsById: function () {
+      getCoupons(this.userId).then(response => {
+        const { content: coupons } = response
+        this.coupons = Array.from(new Set(coupons))
+        this.couponsLoading = true
+      })
+    },
+    getVIPCardById: function () {
+      getVIPCard(this.userId).then(response => {
+        const { content: VIPCard } = response
+        this.VIPCard = VIPCard
+        this.VIPCardLoading = true
+      })
+    },
+    buyTicketsByVIPCard: function () {
+      buyByVIPCard(this.ticketId, this.value ? this.value.id : -1).then(response => {
+        console.log(JSON.stringify(response))
+      })
+    },
+    countdown: function () {
+      this.timer = window.setInterval(() => {
+        if (this.timeout === 0) {
+          console.log('time out!')
+          window.clearInterval(this.timer)
+        }
+        this.timeout -= 1
+      }, 1000)
     }
   }
 }

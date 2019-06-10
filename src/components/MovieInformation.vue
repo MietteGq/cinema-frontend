@@ -16,22 +16,26 @@
                 fit="fill"
                 class="posterimage"></el-image>
               </el-aside>
-              <el-main class="textform">
-                <br>
-                <span>导演：{{ movie.director }}</span>
-                <br><br>
-                <span>编剧：{{ movie.screenWriter }}</span>
-                <br><br>
-                <span>主演：{{ movie.starring }}</span>
-                <br><br>
-                <span>类型：{{ movie.type }}</span>
-                <br><br>
-                <span>制片国家/地区：{{ movie.country }}</span>
-                <br><br>
-                <span>片长：{{ movie.length }}</span>
-                <br><br>
-                <span>剧情简介：{{ movie.description }}</span>
-                <br><br>
+              <el-main class="main">
+                <div class="textform">
+                  <span class="line">导演：{{ movie.director }}</span>
+                  <br>
+                  <span class="line">编剧：{{ movie.screenWriter }}</span>
+                  <br>
+                  <span class="line">主演：{{ movie.starring }}</span>
+                  <br>
+                  <span class="line">类型：{{ movie.type }}</span>
+                  <br>
+                  <span class="line">制片国家/地区：{{ movie.country }}</span>
+                  <br>
+                  <span class="line">片长：{{ movie.length }}</span>
+                  <br><br>
+                  <span class="line">剧情简介：{{ movie.description }}</span>
+                  <br>
+                  <div class="button">
+                    <el-button type="primary">想看<i class="el-icon-star-off el-icon--right"></i></el-button>
+                  </div>
+                </div>
               </el-main>
             </el-container>
           </el-main>
@@ -56,6 +60,9 @@ export default {
         backgroundRepeat: 'no-repeat',
         backgroundSize: '100% 100%'
       }
+    },
+    movieStatus: function () {
+      return this.movie.status ? '已上映' : '未上映'
     }
   },
   data () {
@@ -101,7 +108,6 @@ export default {
   filter: blur(20px);
   z-index: 2;
 }
-
 .text{
   position: relative;
   z-index: 11;
@@ -122,5 +128,17 @@ export default {
   font-size: 12px;
   text-align: left;
   padding-right: 22%;
+  height: 80%;
+  margin-bottom: px;
 }
+.button{
+  text-align: left;
+  height: 10%;
+  margin-top: 10px;
+}
+.line{
+  height: 10%;
+  margin-top: 20%;
+}
+
 </style>
