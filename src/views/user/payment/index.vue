@@ -260,9 +260,11 @@ export default {
       })
     },
     buyTicketsByVIPCard: function () {
-      buyByVIPCard(this.ticketId, this.value ? this.value.id : -1).then(response => {
-        console.log(JSON.stringify(response))
-      })
+      buyByVIPCard(this.ticketId, this.value ? this.value.id : -1).then(
+        this.$router.push({
+          path: '/user/seat/success'
+        })
+      )
     },
     countdown: function () {
       this.timer = window.setInterval(() => {
