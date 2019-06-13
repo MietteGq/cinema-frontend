@@ -1,19 +1,18 @@
 <template>
-  <el-card :body-style="{ padding: '0px', height: '290px' }">
+  <el-card :body-style="{ padding: '0px', height: '100%' }">
     <el-image
-      style="height: 250px"
+      style="height: 80%"
       :src="movie.posterUrl"
       fit="fill"
       class="image"></el-image>
-    <div class="bottom">
+    <div class="bottom" style="height:20%">
       <router-link
         :to="{
           path: '/user/moviedetail',
           query: {
             movieId: movie.id
           }
-        }"
-        >
+        }">
         <el-button type="text" class="button" @click.native.prevent="handleClick">购票</el-button>
       </router-link>
     </div>

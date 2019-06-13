@@ -192,10 +192,12 @@ export default {
 .right{
   width: 40%;
   height: 100%;
+  background-color: whitesmoke;
 }
 .inner-left{
   width: 20%;
-  height: 100%
+  height: 100%;
+  margin: 5px;
 }
 .inner-right{
   padding: 0;

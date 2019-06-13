@@ -28,7 +28,11 @@
           <el-button type="text">我的卡包</el-button>
         </router-link>
       </el-menu-item>
-      <el-menu-item index="3-3">基本信息</el-menu-item>
+      <el-menu-item index="3-3">
+        <router-link :to="'/info/consume'" :underline="false">
+          <el-button type="text">购买记录</el-button>
+        </router-link>
+      </el-menu-item>
       <el-menu-item index="3-4" @click="handleLogout">退出登录</el-menu-item>
     </el-submenu>
   </el-menu>
@@ -53,6 +57,7 @@ export default {
       this.$store.dispatch('logout').then(() => {
         console.log('logout')
         console.log(this.$store.state.userId)
+        this.$router.push('/')
       }).catch(() => {
         console.log('failed')
       })
@@ -60,3 +65,11 @@ export default {
   }
 }
 </script>
+<style>
+.el-menu-demo{
+  background-color:black;
+  margin: 0;
+  border: 0;
+  width: 100%;
+}
+</style>

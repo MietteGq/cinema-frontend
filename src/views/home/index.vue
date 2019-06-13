@@ -1,8 +1,8 @@
 <template>
   <el-container>
-    <el-header :height="'100%'">
+    <el-header :height="'100%'" :style=backgroundDiv  class="image">
       <el-carousel :height="'500px'">
-        <el-carousel-item v-for="item in imagebox" :key="item.id" class="imgBox">
+        <el-carousel-item v-for="item in imagebox" :key="item.id" :style=backgroundDiv  class="imgBox">
           <el-image
             style="height: 100%; width: 70%"
             :src="item.idView"
@@ -14,7 +14,7 @@
     </el-header>
     <el-main>
       <el-tabs  v-model="activeName" @tab-click="handleClick">
-        <el-tab-pane label="正在热映" name="first">
+        <el-tab-pane label="正在热映" v-if="movieLoading" name="first">
           <el-row type="flex" justify="space-between">
             <el-col v-for="(movie, i) in movies" :key="i" :span="4">
               <movie-card :movie="movie"></movie-card>
@@ -31,6 +31,7 @@
 
 <script>
 import MovieCard from '@/components/MovieCard'
+import { getTop4 } from '@/api/movie'
 
 export default {
   components: {
@@ -40,30 +41,37 @@ export default {
     return {
       activeName: 'first',
       imagebox: [
-        { id: 0, idView: require('@/assets/images/p1.jpg') },
+        { id: 0, idView: require('@/assets/images/advise1.jpg') },
         { id: 1, idView: require('@/assets/images/home1.jpg') },
-        { id: 2, idView: require('@/assets/images/home2.jpg') },
+        { id: 2, idView: require('@/assets/images/advise3.jpg') },
         { id: 3, idView: require('@/assets/images/home3.jpg') }
       ],
-      movies: [
-        {
-          posterUrl: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1559564720637&di=76e6c7a1bb8d8d999af4b849c8770713&imgtype=0&src=http%3A%2F%2Fcdnq.duitang.com%2Fuploads%2Fitem%2F201410%2F05%2F20141005110132_WCaNm.thumb.700_0.jpeg'
-        },
-        {
-          posterUrl: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1559564720637&di=76e6c7a1bb8d8d999af4b849c8770713&imgtype=0&src=http%3A%2F%2Fcdnq.duitang.com%2Fuploads%2Fitem%2F201410%2F05%2F20141005110132_WCaNm.thumb.700_0.jpeg'
-        },
-        {
-          posterUrl: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1559564720637&di=76e6c7a1bb8d8d999af4b849c8770713&imgtype=0&src=http%3A%2F%2Fcdnq.duitang.com%2Fuploads%2Fitem%2F201410%2F05%2F20141005110132_WCaNm.thumb.700_0.jpeg'
-        },
-        {
-          posterUrl: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1559564720637&di=76e6c7a1bb8d8d999af4b849c8770713&imgtype=0&src=http%3A%2F%2Fcdnq.duitang.com%2Fuploads%2Fitem%2F201410%2F05%2F20141005110132_WCaNm.thumb.700_0.jpeg'
-        }
-      ]
+      movies: null,
+      movieLoading: false
+    }
+  },
+  created () {
+    this.getTop4Movies()
+  },
+  computed: {
+    backgroundDiv: function () {
+      return {
+        backgroundImage: 'url(' + require('@/assets/images/advise1.jpg') + ')',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: '100% 100%'
+      }
     }
   },
   methods: {
     handleClick (tab, event) {
       console.log(tab, event)
+    },
+    getTop4Movies: function () {
+      getTop4().then(response => {
+        const { content: top10Movies } = response
+        this.movies = top10Movies
+        this.movieLoading = true
+      })
     }
   }
 }
@@ -73,7 +81,9 @@ export default {
 .el-main {
   margin: 0 12%;
 }
-.imgBox {
-  background-color: whitesmoke;
+
+.html{
+  width:100%;
 }
+
 </style>

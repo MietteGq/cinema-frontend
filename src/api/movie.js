@@ -30,3 +30,30 @@ export function movieUnlike (movieId, userId) {
     }
   })
 }
+
+export function movieComment (movieId) {
+  return request({
+    url: '/movieMark/comment',
+    method: 'get',
+    params: {
+      movieId: movieId
+    }
+  })
+}
+
+export function movieMark (movieId) {
+  return request({
+    url: '/movieMark/average',
+    method: 'get',
+    params: {
+      movieId: movieId
+    }
+  })
+}
+
+export function getTop4 () {
+  return request({
+    url: '/movieLike/top10',
+    method: 'get'
+  })
+}

@@ -89,6 +89,22 @@ export default new Router({
       meta: {
         keepAlive: true
       }
+    },
+    {
+      path: '/info/consume',
+      name: 'consume',
+      component: () => import('@/views/user/info/consume'),
+      meta: {
+        keepAlive: true
+      }
+    },
+    {
+      path: '/info/charge',
+      name: 'charge',
+      component: () => import('@/views/user/info/charge'),
+      meta: {
+        keepAlive: true
+      }
     }
   ]
 })

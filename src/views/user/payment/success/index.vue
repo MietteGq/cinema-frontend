@@ -1,7 +1,9 @@
 <template>
   <div>
-    支付成功跳转页面
-    {{timeout}}
+    <div class="title">
+      <br><br><span><i class="el-icon-circle-check"></i>支付成功跳转页面</span><br><br><br>
+     </div>
+    <span>{{timeout}}秒后自动跳转到我的订单</span><br><br>
     <router-link :to="'/info/ticket'">点击此处查看我的订单</router-link>
   </div>
 </template>
@@ -31,5 +33,11 @@ export default {
     }
   }
 }
-
 </script>
+<style>
+.title{
+  font-size: 30px;
+  color: green;
+}
+</style>
+

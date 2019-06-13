@@ -7,13 +7,37 @@ export function getVIPCard (userId) {
   })
 }
 
-export function buyByVIPCard (ticketId, couponId) {
+export function addVIPCard (userId) {
   return request({
-    url: `/ticket/vip/buy`,
+    url: '/vip/add',
     method: 'post',
     params: {
-      ticketId: ticketId,
-      couponId: couponId
+      userId: userId
     }
+  })
+}
+
+export function getVIPInfo () {
+  return request({
+    url: '/vip/getVIPInfo',
+    method: 'get'
+  })
+}
+
+export function chargeVIP (vipId, amount) {
+  return request({
+    url: '/vip/charge',
+    method: 'post',
+    data: {
+      vipId: parseInt(vipId),
+      amount: parseInt(amount)
+    }
+  })
+}
+
+export function record (userId) {
+  return request({
+    url: `/vip/record/${userId}`,
+    method: 'get'
   })
 }

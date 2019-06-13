@@ -7,8 +7,11 @@
             订单号：{{ticket.ticketId}}
           </el-button>
         </el-col>
-        <el-col :span="2" :offset="19">
-          <el-button icon="el-icon-delete" type="text"></el-button>
+        <el-col :span="4" :offset="17">
+          <el-button-group style="padding-left: 10px" v-if="ticket.status==='已完成'">
+            <el-button type="text" icon="el-icon-edit" @click="dialogVisible = true" style="margin-right: 20px"></el-button>
+            <el-button type="text" icon="el-icon-delete" @click="handleReturnTicket()"></el-button>
+          </el-button-group>
         </el-col>
       </el-row>
     </div>
@@ -41,18 +44,71 @@
           {{ticket.status}}
         </el-col>
       </el-row>
+      <el-dialog
+        title="写评论"
+        :visible.sync="dialogVisible"
+        width="40%"
+        >
+        <div style="text-align:left">
+          <div class="block">
+            <span class="demonstration">评分
+              <el-rate
+              v-model="form.mark"
+              :colors="colors">
+            </el-rate></span>
+          </div>
+          <el-form ref="form" :model="form" label-width="50px">
+            <el-form-item label="内容" height="100px">
+              <el-input type="textarea" v-model="form.comment"></el-input>
+            </el-form-item>
+          </el-form>
+        </div>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="postTicketComment()">确 定</el-button>
+        </span>
+      </el-dialog>
     </div>
 </el-card>
 
 </template>
 
 <script>
+import { ticketComment, ticketReturn } from '@/api/ticket'
+
 export default {
   name: 'TicketCard',
   props: {
     ticket: {
       type: Object,
       default: null
+    }
+  },
+  data () {
+    return {
+      colors: ['#99A9BF', '#F7BA2A', '#FF9900'],
+      dialogVisible: false,
+      form: {
+        mark: 0,
+        comment: ''
+      }
+    }
+  },
+  methods: {
+    postTicketComment: function () {
+      ticketComment({
+        mark: this.form.mark,
+        ticketId: this.ticket.ticketId,
+        comment: this.form.comment
+      }).then(response => {
+        this.$message('评论成功')
+        this.dialogVisible = false
+      }).catch(err => console.log(err))
+    },
+    handleReturnTicket: function () {
+      ticketReturn(this.ticket.ticketId).then(res => {
+        console.log(res)
+      }).catch(err => console.log(err))
     }
   }
 }

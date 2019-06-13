@@ -1,8 +1,8 @@
 <template>
   <el-container v-if="movieLoading && scheduleLoading && ticketsLoading ">
     <el-header>
-      <span>{{ movie.name }}</span>
-      <span>{{ waitTime }}</span>
+      <i class="el-icon-warning-outline"></i>
+      <span>{{ waitTime }}后未付款，订单将自动取消</span>
     </el-header>
     <el-main>
        <el-table
@@ -62,22 +62,26 @@
           </div>
         </el-table-column>
       </el-table>
-      <div style="text-align: right;margin-top:10px;margin-right:20px">实付款{{ payMoney }}</div>
+      <div class="pay-div">
+        <div style="text-align:left" v-if="couponsLoading" class="coupon-div">
+          <div style="margin-bottom:10px">优惠券</div>
+          <el-select v-model="value" placeholder="请选择">
+            <el-option
+              v-for="item in options"
+              :key="item.index"
+              :value="item"
+              :label="item.label">
+            </el-option>
+          </el-select>
+        </div>
+        <div class="total-div">实付款：￥
+          <div class="value">{{ payMoney }}</div>
+        </div>
+      </div>
     </el-main>
     <el-footer>
-      <div style="text-align:left" v-if="couponsLoading">
-        <div style="margin-bottom:10px">优惠券</div>
-        <el-select v-model="value" placeholder="请选择">
-          <el-option
-            v-for="item in options"
-            :key="item.index"
-            :value="item"
-            :label="item.label">
-          </el-option>
-        </el-select>
-      </div>
-      <div style="text-align:right">
-        <el-button type="simple" @click="dialogVisible = true">确认订单，立即支付</el-button>
+      <div style="text-align:right" class="button-div">
+        <el-button type="simple" @click="dialogVisible = true" class="button">确认订单，立即支付</el-button>
       </div>
       <div style="text-align:left">
         <el-dialog
@@ -93,18 +97,18 @@
                 <el-input v-model="payForm.number"></el-input>
               </el-form-item>
               <el-form-item label="密码">
-                <el-input v-model="payForm.password"></el-input>
+                <el-input v-model="payForm.password" type="password"></el-input>
               </el-form-item>
               <span>
               <el-button @click="dialogVisible = false">取 消</el-button>
-              <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+              <el-button type="primary" @click="buyTicketsByCard()">确 定</el-button>
              </span>
             </el-form>
           </el-tab-pane>
           <el-tab-pane label="会员卡" v-if="VIPCardLoading">
             <span>会员卡号：{{ VIPCard.id }}</span><br><br>
             <span>余额：{{ VIPCard.balance }}</span><br><br>
-            <span>应付款：{{payMoney}}</span><br><br>
+            <span>应付款：{{ payMoney }}</span><br><br>
             <span>
               <el-button @click="dialogVisible = false">取 消</el-button>
               <el-button type="primary" @click="buyTicketsByVIPCard()">确 定</el-button>
@@ -119,11 +123,11 @@
 <script>
 import { movieDetail } from '@/api/movie'
 import { idSchedule } from '@/api/schedule'
-import { lockSeat } from '@/api/ticket'
+import { lockSeat, buyByVIPCard, buyByCard } from '@/api/ticket'
 import { formatDateTime, formatHourSecondTime } from '@/utils/format'
 import { getCoupons } from '@/api/coupon'
-import { getVIPCard, buyByVIPCard } from '@/api/VIPCard'
-
+import { getVIPCard } from '@/api/VIPCard'
+import { Message } from 'element-ui'
 export default {
   data () {
     return {
@@ -145,8 +149,8 @@ export default {
       value: null,
       VIPCard: null,
       payForm: {
-        number: 1,
-        password: 123
+        number: null,
+        password: null
       },
       dialogVisible: false,
       memberCard: {
@@ -266,6 +270,21 @@ export default {
         })
       )
     },
+    buyTicketsByCard: function () {
+      if (this.payForm.number === '123123123' && this.payForm.password === '123123') {
+        buyByCard(this.ticketId, this.value ? this.value.id : -1).then(
+          this.$router.push({
+            path: '/user/seat/success'
+          })
+        )
+      } else {
+        Message({
+          message: '银行卡账号或密码错误',
+          type: 'error',
+          duration: 5000
+        })
+      }
+    },
     countdown: function () {
       this.timer = window.setInterval(() => {
         if (this.timeout === 0) {
@@ -281,7 +300,11 @@ export default {
 
 <style scoped>
 .el-header{
-  text-align: left;
+  text-align: center;
+  font-size: 25px;
+  background-color: lightpink;
+  color: brown;
+  margin:0 6% 0 2%;
 }
 #div1, #div2{
   display: inline-block;
@@ -316,5 +339,35 @@ export default {
   height: 20%;
   text-align: left;
   font-size: 12px;
+}
+.total{
+  text-align: right;
+  margin-top: 10px;
+  margin-right: 20px;
+  font-size: 15px;
+  color: grey;
+}
+.value{
+  color:black;
+  font-size: 30px;
+}
+.pay-div{
+  margin: 2% 5% 0 2%;
+  display: flex;
+}
+.coupon-div{
+  width: 60%;
+  text-align: left;
+}
+.total-div{
+  margin: 0;
+  width: 40%;
+  text-align: right;
+}
+.button{
+  background-color:whitesmoke;
+}
+.footer{
+  display: flex;
 }
 </style>

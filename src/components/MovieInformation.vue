@@ -5,8 +5,17 @@
         <el-container>
           <el-header>
             <h1 style="text-align: left">{{ movie.name }}</h1>
-            <el-divider></el-divider>
+            <el-rate
+              v-model="movieRate"
+              disabled
+              show-score
+              text-color="#ff9900"
+              score-template="{value}"
+              style="text-align: left"
+              >
+            </el-rate>
           </el-header>
+          <el-divider></el-divider>
           <el-main class="info">
             <el-container>
               <el-aside :width="'250px'">
@@ -33,7 +42,8 @@
                   <span class="line">剧情简介：{{ movie.description }}</span>
                   <br>
                   <div class="button">
-                    <el-button type="primary">想看<i class="el-icon-star-off el-icon--right"></i></el-button>
+                    <el-button type="primary" v-if="!movie.islike" @click.prevent.native="handleClick()">想看<i class="el-icon-star-off el-icon--right"></i></el-button>
+                    <el-button type="warning" v-if="movie.islike" @click.prevent.native="handleClick()">不想看<i class="el-icon-star-on el-icon--right"></i></el-button>
                   </div>
                 </div>
               </el-main>
@@ -46,6 +56,8 @@
 </template>
 
 <script>
+import { movieLike, movieUnlike, movieMark } from '@/api/movie'
+
 export default {
   props: {
     movie: {
@@ -67,6 +79,29 @@ export default {
   },
   data () {
     return {
+      userId: null,
+      movieRate: 0
+    }
+  },
+  created () {
+    this.userId = this.$store.state.userId
+    this.getMovieMark()
+  },
+  methods: {
+    handleClick: function () {
+      this.movie.islike = parseInt(this.movie.islike) === 1 ? 0 : 1
+      if (parseInt(this.movie.islike) === 1) {
+        movieLike(this.movie.id, this.userId).then(response => console.log(response)).catch(err => console.log(err))
+      } else {
+        movieUnlike(this.movie.id, this.userId).then(response => console.log(response)).catch(err => console.log(err))
+      }
+    },
+    getMovieMark: function () {
+      movieMark(this.movie.id).then(res => {
+        const { content: rate } = res
+        this.movieRate = parseFloat(rate)
+        this.movieRate = this.movieRate > 5 ? 5 : this.movieRate
+      })
     }
   }
 }
@@ -78,7 +113,7 @@ export default {
 }
 .box{
   width:100%;
-  height:400px;
+  height:500px;
   position: relative;
   padding:0px;
   display: flex;
