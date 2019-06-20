@@ -10,7 +10,10 @@
         <el-col :span="4" :offset="17">
           <el-button-group style="padding-left: 10px" v-if="ticket.status==='已完成'">
             <el-button type="text" icon="el-icon-edit" @click="dialogVisible = true" style="margin-right: 20px"></el-button>
-            <el-button type="text" icon="el-icon-delete" @click="handleReturnTicket()"></el-button>
+            <el-button type="text" icon="el-icon-delete" @click="returnTicketVisible = true"></el-button>
+          </el-button-group>
+          <el-button-group style="padding-left: 10px" v-if="ticket.status==='未完成'">
+            <el-button type="text" icon="el-icon-shopping-cart-2" @click="continuePay()" style="margin-left: 40px"></el-button>
           </el-button-group>
         </el-col>
       </el-row>
@@ -68,6 +71,17 @@
           <el-button type="primary" @click="postTicketComment()">确 定</el-button>
         </span>
       </el-dialog>
+      <el-dialog
+        title="提示"
+        :visible.sync="returnTicketVisible"
+        width="30%"
+        >
+        <span>您确定要退票吗？</span>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="returnTicketVisible = false">取 消</el-button>
+          <el-button type="primary" @click="handleReturnTicket()">确 定</el-button>
+        </span>
+      </el-dialog>
     </div>
 </el-card>
 
@@ -91,7 +105,8 @@ export default {
       form: {
         mark: 0,
         comment: ''
-      }
+      },
+      returnTicketVisible: false
     }
   },
   methods: {
@@ -108,7 +123,19 @@ export default {
     handleReturnTicket: function () {
       ticketReturn(this.ticket.ticketId).then(res => {
         console.log(res)
+        this.$message('退票成功')
+        this.returnTicketVisible = false
       }).catch(err => console.log(err))
+    },
+    continuePay: function () {
+      this.$router.push({
+        path: '/user/seat/payment',
+        query: {
+          scheduleId: this.ticket.ticket.scheduleId,
+          movieId: this.ticket.movieId,
+          tickets: [this.ticket.ticket]
+        }
+      })
     }
   }
 }

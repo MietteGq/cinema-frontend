@@ -41,3 +41,13 @@ export function record (userId) {
     method: 'get'
   })
 }
+
+export function recordCharge (userId, amount) {
+  return request({
+    url: `/vip/${userId}/record`,
+    method: 'post',
+    params: {
+      amount: amount
+    }
+  })
+}

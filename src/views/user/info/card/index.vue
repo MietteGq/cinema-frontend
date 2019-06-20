@@ -70,7 +70,7 @@
 
 <script>
 import Coupon from '@/components/Coupon'
-import { getVIPCard, addVIPCard, getVIPInfo, chargeVIP } from '@/api/VIPCard'
+import { getVIPCard, addVIPCard, getVIPInfo, chargeVIP, recordCharge } from '@/api/VIPCard'
 import { getCoupons } from '@/api/coupon'
 import { formatTime } from '@/utils/format'
 import { Message } from 'element-ui'
@@ -160,9 +160,9 @@ export default {
         if (valid) {
           if (this.chargeForm.cardNum === '123123123' && this.chargeForm.cardPassword === '123123') {
             chargeVIP(this.vipCard.id, this.chargeForm.chargeNum).then(response => {
-              // const { content: vipCard } = response
               this.vipCard.balance = parseInt(this.vipCard.balance) + parseInt(this.chargeForm.chargeNum)
               this.dialogFormVisible = false
+              this.recordUserCharge(this.chargeForm.chargeNum)
             }).catch(err => console.log(err))
           } else {
             Message({
@@ -176,6 +176,11 @@ export default {
           return false
         }
       })
+    },
+    recordUserCharge: function (amount) {
+      recordCharge(this.userId, amount).then(
+        console.log(`Successfully charge ${amount}`)
+      )
     },
     submitBuyForm: function () {
       if (this.buyForm.cardNum === '123123123' && this.buyForm.cardPassword === '123123') {
@@ -226,10 +231,7 @@ export default {
 }
 .inner-main{
   padding: 0;
-  height:500px;
-}
-.test{
-  height: 400px;
+  height: 100%;
 }
 .page{
   width: 100%;

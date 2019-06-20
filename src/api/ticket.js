@@ -66,3 +66,22 @@ export function ticketReturn (ticketId) {
     method: 'post'
   })
 }
+
+export function recordTickets (cost, ticketIds) {
+  return request({
+    url: '/ticket/price',
+    method: 'post',
+    params: {
+      totalcost: cost,
+      ticketIds: ticketIds
+    }
+  })
+}
+
+export function recordConsume (consumeForm) {
+  return request({
+    url: '/ticket/consume',
+    method: 'post',
+    data: consumeForm
+  })
+}

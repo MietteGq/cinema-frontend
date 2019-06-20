@@ -89,7 +89,9 @@ export default {
           startTime: this.formatTime(this.schedules[each.scheduleId].startTime),
           endTime: this.formatTime(this.schedules[each.scheduleId].endTime),
           price: this.schedules[each.scheduleId].fare,
-          status: each.vo.state
+          status: each.vo.state,
+          movieId: this.schedules[each.scheduleId].movieId,
+          ticket: each
         }
       })
     }

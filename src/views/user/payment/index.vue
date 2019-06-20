@@ -123,7 +123,7 @@
 <script>
 import { movieDetail } from '@/api/movie'
 import { idSchedule } from '@/api/schedule'
-import { lockSeat, buyByVIPCard, buyByCard } from '@/api/ticket'
+import { lockSeat, buyByVIPCard, buyByCard, recordTickets, recordConsume } from '@/api/ticket'
 import { formatDateTime, formatHourSecondTime } from '@/utils/format'
 import { getCoupons } from '@/api/coupon'
 import { getVIPCard } from '@/api/VIPCard'
@@ -211,7 +211,13 @@ export default {
     this.userId = this.$store.state.userId
     this.getMovieDetail()
     this.getScheduleById()
-    this.getTickets()
+    if (this.seats) {
+      this.getTickets()
+    } else {
+      this.tickets = this.$route.query.tickets
+      console.log(JSON.stringify(this.tickets))
+      this.ticketsLoading = true
+    }
     this.getCouponsById()
     this.countdown()
     this.getVIPCardById()
@@ -265,17 +271,13 @@ export default {
     },
     buyTicketsByVIPCard: function () {
       buyByVIPCard(this.ticketId, this.value ? this.value.id : -1).then(
-        this.$router.push({
-          path: '/user/seat/success'
-        })
+        this.recordUserConsume(1)
       )
     },
     buyTicketsByCard: function () {
       if (this.payForm.number === '123123123' && this.payForm.password === '123123') {
         buyByCard(this.ticketId, this.value ? this.value.id : -1).then(
-          this.$router.push({
-            path: '/user/seat/success'
-          })
+          this.recordUserConsume(0)
         )
       } else {
         Message({
@@ -293,6 +295,23 @@ export default {
         }
         this.timeout -= 1
       }, 1000)
+    },
+    recordBuyTickets: function () {
+      recordTickets(this.payMoney, this.ticketId).then(
+        this.$router.push({
+          path: '/user/seat/success'
+        })
+      )
+    },
+    recordUserConsume: function (type) {
+      recordConsume({
+        userid: parseInt(this.userId),
+        type: type,
+        amount: this.payMoney,
+        scheduleId: this.scheduleId
+      }).then(
+        this.recordBuyTickets()
+      )
     }
   }
 }

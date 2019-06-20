@@ -52,13 +52,15 @@
 <script>
 import { getConsume } from '@/api/ticket'
 import { formatTime } from '@/utils/format'
+import { record } from '@/api/VIPCard'
 
 export default {
   name: 'Consume',
   data () {
     return {
       userId: null,
-      consumeRecords: []
+      consumeRecords: [],
+      chargeRecords: []
     }
   },
   computed: {
@@ -69,17 +71,30 @@ export default {
         x.time = formatTime(x.time)
         return x
       })
+    },
+    formatChargeRecords: function () {
+      return this.chargeRecords.map(x => {
+        x.time = formatTime(x.time)
+        return x
+      })
     }
   },
   created () {
     this.userId = this.$store.state.userId
     this.getUserConsume()
+    this.getChargeRecords()
   },
   methods: {
     getUserConsume: function () {
       getConsume(this.userId).then(res => {
         const { content: consumeRecords } = res
         this.consumeRecords = consumeRecords
+      })
+    },
+    getChargeRecords: function () {
+      record(this.userId).then(res => {
+        const { content: records } = res
+        this.chargeRecords = records
       })
     }
   }
