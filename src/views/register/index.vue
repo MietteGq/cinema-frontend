@@ -13,7 +13,7 @@
         </el-image>
       </div>
       <div class="right">
-        <h3>账号登陆</h3>
+        <h3>账号注册</h3>
         <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
           <el-form-item label="账号" prop="username">
             <el-input type="text" v-model="ruleForm.username" autocomplete="off"></el-input>
@@ -22,15 +22,15 @@
             <el-input type="password" v-model="ruleForm.password" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="submitForm('ruleForm')">提交</el-button>
+            <el-button type="primary" @click="submitForm('ruleForm')">注册</el-button>
             <el-button @click="resetForm('ruleForm')">重置</el-button>
           </el-form-item>
         </el-form>
         <router-link
           :to="{
-            path: '/register'
+            path: '/login'
           }">
-          <el-link>没有账号？立即注册</el-link>
+          <el-link>已有账号？立即登录</el-link>
         </router-link>
       </div>
     </div>
@@ -38,6 +38,8 @@
 </template>
 
 <script>
+import { register } from '@/api/account'
+
 export default {
   data () {
     var validatePass = (rule, value, callback) => {
@@ -70,10 +72,11 @@ export default {
     submitForm (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.$store.dispatch('login', this.ruleForm).then(() => {
-            this.$router.go(-1)
-          }).catch(() => {
-            console.log('failed')
+          register({
+            username: this.ruleForm.username,
+            password: this.ruleForm.password
+          }).then(() => {
+            this.$router.push('/login')
           })
         } else {
           console.log('error submit!!')

@@ -32,6 +32,14 @@ export default new Router({
       }
     },
     {
+      path: '/register',
+      name: 'regist',
+      component: () => import('@/views/register'),
+      meta: {
+        keepAlive: false
+      }
+    },
+    {
       path: '/user/movieDetail',
       name: 'movieDetail',
       component: () => import('@/views/user/movieDetail'),
